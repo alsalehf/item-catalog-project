@@ -34,12 +34,15 @@ def showCategories():
 @app.route('/catalog/<string:category_name>/')
 @app.route('/catalog/<string:category_name>/items/')
 def showItems(category_name):
-    return "show all items in a category"
+    category_ID = session.query(Category.id).filter_by(name = category_name).one()
+    items = session.query(Item).filter_by(category_id = category_ID[0])
+    return render_template('items.html', items = items)
 
 #Show item info
 @app.route('/catalog/<string:category_name>/<string:item_name>/')
 def showOneItem(category_name,item_name):
-    return "show an item info"
+    item = session.query(Item).filter_by(name = item_name).one()
+    return render_template('iteminfo.html', item = item)
 
 #Create a new item
 @app.route('/catalog/items/new/',methods=['GET','POST'])
