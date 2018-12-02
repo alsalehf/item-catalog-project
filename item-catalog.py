@@ -64,16 +64,30 @@ def newItem():
         cat_id = session.query(Category.id).filter_by(name = request.form['category']).one()
         newItem = Item(name = request.form['name'], description = request.form['description'],category_id = cat_id[0])
         session.add(newItem)
-        flash('New item %s Successfully Created' % newItem.name)
+        flash('New item %s Successfully Created under the %s category' % (newItem.name, request.form['category']))
         session.commit()
-        return redirect(url_for('showItems',category_name=request.form['category']))
+        return redirect(url_for('showCategories'))
     else:
         return render_template('newItem.html')
 
 #Edit an item
 @app.route('/catalog/<string:item_name>/edit', methods=['GET','POST'])
 def editItem(item_name):
-    return "edit an item in the catalog"
+    editedItem = session.query(Item).filter_by(name = item_name).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            editedItem.name = request.form['name']
+        if request.form['description']:
+            editedItem.description = request.form['description']
+        if request.form['category']:
+            cat_id = session.query(Category.id).filter_by(name = request.form['category']).one()
+            editedItem.category_id = cat_id[0]
+        session.add(editedItem)
+        session.commit()
+        flash('Item Successfully Edited %s under the %s category' % (editedItem.name, request.form['category']))
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('editItem.html', item = editedItem)
 
 #Delete a item
 @app.route('/catalog/<string:item_name>/delete', methods = ['GET','POST'])
