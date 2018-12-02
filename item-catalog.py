@@ -60,7 +60,15 @@ def showOneItem(category_name,item_name):
 #Create a new item
 @app.route('/catalog/items/new/',methods=['GET','POST'])
 def newItem():
-    return "create an item in the catalog"
+    if request.method == 'POST':
+        cat_id = session.query(Category.id).filter_by(name = request.form['category']).one()
+        newItem = Item(name = request.form['name'], description = request.form['description'],category_id = cat_id[0])
+        session.add(newItem)
+        flash('New item %s Successfully Created' % newItem.name)
+        session.commit()
+        return redirect(url_for('showItems',category_name=request.form['category']))
+    else:
+        return render_template('newItem.html')
 
 #Edit an item
 @app.route('/catalog/<string:item_name>/edit', methods=['GET','POST'])
