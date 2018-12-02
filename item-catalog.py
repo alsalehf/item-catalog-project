@@ -23,6 +23,19 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+#json representation of the item catalog
+@app.route('/catalog.json')
+def catalogJSON():
+    '''
+    categories = session.query(Category).all()
+    catalog = {}
+    for c in categories:
+        items = session.query(Item).filter_by(category_id = c.id)
+        catalog = catalog + jsonify(category  = c.serialize, item = [i.serialize for i in items])
+    '''
+    items = session.query(Item).all()
+    return jsonify(item= [i.serialize for i in items])
+
 #Show all cateogries and recent items
 @app.route('/')
 @app.route('/catalog/')
