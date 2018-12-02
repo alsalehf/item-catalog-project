@@ -92,7 +92,14 @@ def editItem(item_name):
 #Delete a item
 @app.route('/catalog/<string:item_name>/delete', methods = ['GET','POST'])
 def deleteItem(item_name):
-    return "delete item from the catalog"
+    itemToDelete = session.query(Item).filter_by(name = item_name).one()
+    if request.method == 'POST':
+        session.delete(itemToDelete)
+        session.commit()
+        flash('%s Item Successfully Deleted' % itemToDelete.name)
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('deleteItem.html', item = itemToDelete)
 
 
 
