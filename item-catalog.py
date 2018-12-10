@@ -200,7 +200,10 @@ def getUserID(email):
 @app.route('/catalog/')
 def showCategories():
     categories = session.query(Category).order_by(asc(Category.name))
-    return render_template('catalog.html', categories = categories)
+    if 'username' not in login_session:
+        return render_template('publiccatalog.html', categories = categories)
+    else:
+        return render_template('catalog.html', categories = categories)
 
 #Show a cateogry items
 @app.route('/catalog/<string:category_name>/')
@@ -214,7 +217,11 @@ def showItems(category_name):
 @app.route('/catalog/<string:category_name>/<string:item_name>/')
 def showOneItem(category_name,item_name):
     item = session.query(Item).filter_by(name = item_name).one()
-    return render_template('iteminfo.html', item = item)
+    creator = getUserInfo(item.user_id)
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        return render_template('publiciteminfo.html', item = item)
+    else:
+        return render_template('iteminfo.html', item = item)
 
 #Create a new item
 @app.route('/catalog/items/new/',methods=['GET','POST'])
@@ -237,6 +244,9 @@ def editItem(item_name):
     if 'username' not in login_session:
         return redirect('/login')
     editedItem = session.query(Item).filter_by(name = item_name).one()
+    if login_session['user_id'] != editedItem.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to edit this item. Please create your own items in order to edit them.');}</script><body onload='myFunction()''>"
+
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -258,6 +268,8 @@ def deleteItem(item_name):
     if 'username' not in login_session:
         return redirect('/login')
     itemToDelete = session.query(Item).filter_by(name = item_name).one()
+    if login_session['user_id'] != itemToDelete.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to delete this item. Please create your own items in order to delete them.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
