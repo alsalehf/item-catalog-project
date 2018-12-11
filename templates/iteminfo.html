@@ -19,6 +19,10 @@
 			<div class="col-md-1"></div>
 			<div class="col-md-3">
 					<div class="menu-item">
+						<figure class="creator">
+<img src="{{ creator.picture}}">
+<figcaption>{{ creator.name }}</figcaption>
+</figure>
 					    <h3>{{item.name}}</h3>
               <h3>{{item.description}}</h3>
 							<a href='{{url_for('editItem', item_name = item.name) }}'>Edit</a> |

@@ -162,7 +162,9 @@ def gdisconnect():
         del login_session['picture']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("You have successfully been logged out.")
+        return redirect(url_for('showCategories'))
+        #return response
     else:
         response = make_response(json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
@@ -219,9 +221,9 @@ def showOneItem(category_name,item_name):
     item = session.query(Item).filter_by(name = item_name).one()
     creator = getUserInfo(item.user_id)
     if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publiciteminfo.html', item = item)
+        return render_template('publiciteminfo.html', item = item, creator= creator)
     else:
-        return render_template('iteminfo.html', item = item)
+        return render_template('iteminfo.html', item = item, creator=creator)
 
 #Create a new item
 @app.route('/catalog/items/new/',methods=['GET','POST'])
