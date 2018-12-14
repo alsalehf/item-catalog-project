@@ -8,7 +8,12 @@
 					{%if 'username' not in session %}
 					<a href="{{url_for('showLogin')}}">Click here to Log in</a>
 					{% else %}
-					<a href="{{url_for('gdisconnect')}}">Logout </a>
+
+					<figure class="creator">
+						<a href="{{url_for('gdisconnect')}}">Logout </a>
+						<img src="{{ session['picture']}}">
+					</figure>
+
 					{% endif %}
 	</div>
 </div>
