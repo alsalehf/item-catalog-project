@@ -74,15 +74,15 @@ h3 {
 .glyphicon {
 	margin-right: 10px;
 }
-.top-menu {
+.top-cat {
 	padding-top: 30px;
 	padding-bottom: 30px;
 }
-.top-menu p {
+.top-cat p {
 	margin-bottom: 0;
 	line-height: 16px;
 }
-.top-menu a {
+.top-cat a {
 	margin-bottom: 0;
 	line-height: 16px;
 	font-size: 16px;
@@ -105,7 +105,7 @@ h3 {
 	background-repeat: no-repeat;
 	background-size: cover;
 }
-.banner.menu {
+.banner.second {
 	height: 150px;
 	background-color: #E1E17F;
 }
@@ -124,15 +124,13 @@ h3 {
  	background-color: #e1e17f;
  	padding: 20px;
 }
-.menu-item {
+.item {
 	background: #F0F0F0;
 	padding: 20px;
 	margin: 20px;
 	margin-left: -20px;
 }
-.menu-price {
-	font-weight: 700;
-}
+
 .creator {
 	padding-right: 20px;
 	margin-top: -20px;

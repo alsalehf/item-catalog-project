@@ -29,15 +29,12 @@ session = DBSession()
 #json representation of the item catalog
 @app.route('/catalog.json')
 def catalogJSON():
-    '''
-    categories = session.query(Category).all()
-    catalog = {}
+    categories = [c.serialize for c in session.query(Category).all()]
     for c in categories:
-        items = session.query(Item).filter_by(category_id = c.id)
-        catalog = catalog + jsonify(category  = c.serialize, item = [i.serialize for i in items])
-    '''
-    items = session.query(Item).all()
-    return jsonify(item= [i.serialize for i in items])
+        items = session.query(Item).filter_by(category_id = c["id"]).all()
+        item = [i.serialize for i in items]
+        c["Item"] = item
+    return jsonify(category = categories)
 
 # Create anti-forgery state token
 @app.route('/login')
@@ -166,7 +163,6 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         flash("You have successfully been logged out.")
         return redirect(url_for('showCategories'))
-        #return response
     else:
         response = make_response(json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
@@ -240,7 +236,8 @@ def newItem():
         session.commit()
         return redirect(url_for('showCategories'))
     else:
-        return render_template('newItem.html')
+        categories = session.query(Category).all()
+        return render_template('newItem.html', categories = categories)
 
 #Edit an item
 @app.route('/catalog/<string:item_name>/edit', methods=['GET','POST'])
@@ -264,7 +261,8 @@ def editItem(item_name):
         flash('Item Successfully Edited %s under the %s category' % (editedItem.name, request.form['category']))
         return redirect(url_for('showCategories'))
     else:
-        return render_template('editItem.html', item = editedItem)
+        categories = session.query(Category).all()
+        return render_template('editItem.html', item = editedItem, categories = categories)
 
 #Delete a item
 @app.route('/catalog/<string:item_name>/delete', methods = ['GET','POST'])
