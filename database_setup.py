@@ -4,6 +4,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 
 Base = declarative_base()
+
+
 class User(Base):
     __tablename__ = 'user'
 
@@ -21,37 +23,36 @@ class Category(Base):
 
     @property
     def serialize(self):
-       """Return object data in easily serializeable format"""
-       return {
-           'name'         : self.name,
-           'id'           : self.id,
-       }
+        """Return object data in easily serializeable format"""
+        return {
+                'name': self.name,
+                'id': self.id,
+               }
+
 
 class Item(Base):
     __tablename__ = 'item'
-
-
-    name =Column(String(80), nullable = False)
-    id = Column(Integer, primary_key = True)
+    name = Column(String(80), nullable=False)
+    id = Column(Integer, primary_key=True)
     description = Column(String(250))
-    category_id = Column(Integer,ForeignKey('category.id'))
+    category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
-    user_id = Column(Integer,ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
     @property
     def serialize(self):
-       """Return object data in easily serializeable format"""
-       return {
-            'cat_id' : self.category_id,
-           'description'         : self.description,
-           'id'         : self.id,
-           'name'         : self.name,
-       }
+        """Return object data in easily serializeable format"""
+        return {
+                'cat_id': self.category_id,
+                'description': self.description,
+                'id': self.id,
+                'name': self.name,
+               }
 
 
-
-engine = create_engine('sqlite:///itemcatalog.db',connect_args={'check_same_thread':False},echo = True)
+engine = create_engine('sqlite:///itemcatalog.db',
+                       connect_args={'check_same_thread': False}, echo=True)
 
 
 Base.metadata.create_all(engine)
