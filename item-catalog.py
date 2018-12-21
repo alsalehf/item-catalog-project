@@ -41,7 +41,7 @@ def catalogJSON():
     return jsonify(category=categories)
 
 
-# Create anti-forgery state token
+# Create anti-forgery state token to be passed to google
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -50,6 +50,7 @@ def showLogin():
     return render_template('login.html', STATE=state)
 
 
+# Connect to the google API
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -141,6 +142,7 @@ def gconnect():
     return output
 
 
+# Dissconnect the user from the Google authentication
 @app.route('/gdisconnect')
 def gdisconnect():
     access_token = login_session.get('access_token')
@@ -153,8 +155,8 @@ def gdisconnect():
     print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
     print login_session['username']
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s'
-    % login_session['access_token']
+    url = "https://accounts.google.com/o/oauth2/"
+    url = url+"revoke?token=%s" % login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
@@ -179,7 +181,7 @@ def gdisconnect():
         return response
 
 
-# User Helper Functions
+# Create a user in the database it doesn't exists
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
                    'email'], picture=login_session['picture'])
@@ -189,11 +191,13 @@ def createUser(login_session):
     return user.id
 
 
+# Get the user info from the database using the id
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
 
+# Get the user id from the database using the email address
 def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
@@ -202,7 +206,7 @@ def getUserID(email):
         return None
 
 
-# Show all cateogries and recent items
+# Show all cateogries
 @app.route('/')
 @app.route('/catalog/')
 def showCategories():
@@ -217,10 +221,8 @@ def showCategories():
 @app.route('/catalog/<string:category_name>/')
 @app.route('/catalog/<string:category_name>/items/')
 def showItems(category_name):
-    category_ID = session.query(Category.id).
-    filter_by(name=category_name).one()
-    items = session.query(Item).
-    filter_by(category_id=category_ID[0])
+    ID = session.query(Category.id).filter_by(name=category_name).one()
+    items = session.query(Item).filter_by(category_id=ID[0])
     return render_template('items.html',
                            items=items, category_name=category_name)
 
@@ -230,8 +232,8 @@ def showItems(category_name):
 def showOneItem(category_name, item_name):
     item = session.query(Item).filter_by(name=item_name).one()
     creator = getUserInfo(item.user_id)
-    if 'username' not in login_session or
-    creator.id != login_session['user_id']:
+    userID = login_session['user_id']
+    if 'username' not in login_session or creator.id != userID:
         return render_template('publiciteminfo.html',
                                item=item, creator=creator)
     else:
@@ -244,11 +246,11 @@ def newItem():
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
-        cat_id = session.query(Category.id).
-        filter_by(name=request.form['category']).one()
+        catName = request.form['category']
+        ID = session.query(Category.id).filter_by(name=catName).one()
         newItem = Item(name=request.form['name'],
                        description=request.form['description'],
-                       category_id=cat_id[0], user_id=login_session['user_id'])
+                       category_id=ID[0], user_id=login_session['user_id'])
         session.add(newItem)
         flash('New item %s Successfully Created under the %s category'
               % (newItem.name, request.form['category']))
@@ -276,9 +278,9 @@ def editItem(item_name):
         if request.form['description']:
             editedItem.description = request.form['description']
         if request.form['category']:
-            cat_id = session.query(Category.id).
-            filter_by(name=request.form['category']).one()
-            editedItem.category_id = cat_id[0]
+            catName = request.form['category']
+            ID = session.query(Category.id).filter_by(name=catName).one()
+            editedItem.category_id = ID[0]
         session.add(editedItem)
         session.commit()
         flash('Item Successfully Edited %s under the %s category'
